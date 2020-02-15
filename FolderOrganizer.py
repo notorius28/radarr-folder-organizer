@@ -100,8 +100,7 @@ def move_movie(movie_info, current_path, correct_path):
             shutil.move(old_path, new_path)
             logger.info('Movie "{}" files moved from "{}" to "{}"'.format(title, old_path, new_path))
         else:
-            logger.debug(
-                'Movie "{}" has no files. Just updating Radarr (no files to move)'.format(title, old_path, new_path))
+            logger.debug('Movie "{}" has no files. Just updating Radarr (no files to move)'.format(title, old_path, new_path))
         change_movie_path_and_folder(movie_info, new_path, new_folder_name)
         refresh_movie(movie_info)
     except Exception as e:
@@ -191,12 +190,11 @@ for movie in movies_json:
     current_path = get_current_path(movie)
     # We normalize the path to avoid case inconsistencies when checking the mappings
     normalized_current_path = normalize_path(current_path)
-    # We added a temp extension control for files currently converting ('.cvrt')
-    #conversion_path = ) / pathlib.Path(movie['movieFile']['relativePath']).with_suffix('.cvrt')   
-    conversion_path = get_conversion_file(pathlib.Path(movie['path']), pathlib.Path(movie['movieFile']['relativePath']), '.cvrt')
-    if os.path.exists(conversion_path):
-        logger.debug('Movie "{}" is currently being converted, wait for next execution')
-        continue
+    # We added a temp extension control for files currently converting  
+    try:
+        conversion_path = get_conversion_file(pathlib.Path(movie['path']), pathlib.Path(movie['movieFile']['relativePath']), '.cvrt')
+    except Exception as e:
+        conversion_path = ""
     if normalized_current_path not in custom_format_mappings.values():
         logger.warning(
             'Movie "{}" current path is "{}", normalized as "{}" and is not in the configuration file. Skipping to avoid possible errors'.format(
@@ -206,6 +204,9 @@ for movie in movies_json:
     if correct_path is None:
         logger.debug('Movie "{}" current path is "{}", correct path is not assigned (no custom format with a customized mapping). Skipping'.format(
                 title, movie['path']))
+        continue
+    if os.path.exists(conversion_path):
+        logger.debug('Movie "{}" is currently being converted, wait for next execution')
         continue
     if normalized_current_path != correct_path:
         logger.debug(
