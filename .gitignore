@@ -114,3 +114,6 @@ logs/
 logs/*
 
 Config.txt
+.vscode
+.vscode/*
+rfo.code-workspace

@@ -134,6 +134,9 @@ def refresh_movie(movie_info):
     else:
         logger.error("Error while refreshing movie: {}".format(title))
 
+def get_conversion_file(path, relativePath, extension):
+    conversion_path = pathlib.Path(path) / pathlib.Path(relativePath).with_suffix(extension)
+    return str(conversion_path)
 
 ########################################################################################################################
 logger = logging.getLogger()
@@ -188,6 +191,12 @@ for movie in movies_json:
     current_path = get_current_path(movie)
     # We normalize the path to avoid case inconsistencies when checking the mappings
     normalized_current_path = normalize_path(current_path)
+    # We added a temp extension control for files currently converting ('.cvrt')
+    #conversion_path = ) / pathlib.Path(movie['movieFile']['relativePath']).with_suffix('.cvrt')   
+    conversion_path = get_conversion_file(pathlib.Path(movie['path']), pathlib.Path(movie['movieFile']['relativePath']), '.cvrt')
+    if os.path.exists(conversion_path):
+        logger.debug('Movie "{}" is currently being converted, wait for next execution')
+        continue
     if normalized_current_path not in custom_format_mappings.values():
         logger.warning(
             'Movie "{}" current path is "{}", normalized as "{}" and is not in the configuration file. Skipping to avoid possible errors'.format(
