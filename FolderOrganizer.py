@@ -195,7 +195,12 @@ for movie in movies_json:
         conversion_path = get_conversion_file(pathlib.Path(movie['path']), pathlib.Path(movie['movieFile']['relativePath']), '.cvrt')
     except Exception as e:
         conversion_path = ""
-        # We added a temp extension control for files currently converting  
+    # We added a temp extension control for files currently converting  
+    try:
+        lck_path = get_conversion_file(pathlib.Path(movie['path']), pathlib.Path(movie['movieFile']['relativePath']), '.lck')
+    except Exception as e:
+        lck_path = ""
+    # We added a temp extension control for files currently converting  
     try:
         qtfs_path = get_conversion_file(pathlib.Path(movie['path']), pathlib.Path(movie['movieFile']['relativePath']), '.QTFS')
     except Exception as e:
@@ -210,7 +215,7 @@ for movie in movies_json:
         logger.debug('Movie "{}" current path is "{}", correct path is not assigned (no custom format with a customized mapping). Skipping'.format(
                 title, movie['path']))
         continue
-    if os.path.exists(conversion_path) or os.path.exists(qtfs_path):
+    if os.path.exists(conversion_path) or os.path.exists(qtfs_path) or os.path.exists(lck_path):
         logger.debug('Movie "{}" is currently being converted, wait for next execution')
         continue
     if normalized_current_path != correct_path:
