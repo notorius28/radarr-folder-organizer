@@ -8,7 +8,7 @@ import shutil
 
 import requests
 
-VER = '1.0.0'
+VER = '1.1.0'
 
 ID = "id"
 FOLDER_NAME = "folderName"
@@ -137,6 +137,14 @@ def get_conversion_file(path, relativePath, extension):
     conversion_path = pathlib.Path(path) / pathlib.Path(relativePath).with_suffix(extension)
     return str(conversion_path)
 
+def update_plex(plex_autoscan_url, path):
+    payload = {'eventType': 'Manual', 'filepath': path}
+    try:
+      requests.post(plex_autoscan_url, json=payload)
+    except Exception as e:
+      print("Error - Request failed")
+      print(e)
+
 ########################################################################################################################
 logger = logging.getLogger()
 log_level = os.getenv(LOG_LEVEL, "INFO")
@@ -223,6 +231,10 @@ for movie in movies_json:
             'Movie "{}" current path is "{}", normalized as "{}" and doesn\'t match the correct path "{}". Proceeding to move it'.format(
                 title, movie['path'], normalized_current_path, correct_path))
         move_movie(movie, current_path, correct_path)
+        plex_autoscan_url = config_section_map("PlexAutoscan")['url']
+        if plex_autoscan_url:
+            new_path = movie[PATH].replace(current_path, correct_path).rstrip("/\\")
+            update_plex(plex_autoscan_url, new_path)           
     else:
         logger.debug(
             'Movie "{}" current path is "{}" and matches the correct path "{}". Nothing to do here'.format(

@@ -5,3 +5,5 @@ key = 4384803r2808rvsvj023r9fjvvd0fjv3
 __default = /the/default/folder
 custom_format1 = /custom/format/1/folder
 custom_format2 = /custom/format/2/folder
+[PlexAutoscan]
+url = http://changeme.com:3468
